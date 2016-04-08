@@ -3,6 +3,7 @@
 Node.js ExpressJs configurable requests rate limitter middlewear on Redis.
 This is very handy for API's. This middlewear calculates requests per minue and gives Rate-Limit headers for each type of request method: GET, POST, PUT, DELETE
 If limit is reached, it will send HTTP 429 Too May requests response (http://httpstatusdogs.com/429-too-many-requests)
+Rate limit applies to req.user if any, or to IP as a fallback.
 
   - X-Rate-Limit-Limit: Maximum limit for given method
   - X-Rate-Limit-Remaining: Remaining requests count
