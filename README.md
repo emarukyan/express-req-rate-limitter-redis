@@ -11,8 +11,7 @@ Rate limit applies to req.user if any, or to IP as a fallback.
 
 ## Installation
 ```sh
-cd node_modules/
-git clone https://github.com/emarukyan/express-req-rate-limitter-redis
+npm install express-req-rate-limitter-redis --save
 ```
 
 Create Redis client somehow
