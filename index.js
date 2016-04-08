@@ -73,11 +73,6 @@ function checkReqsIntensivity (req, res, next) {
     res.setHeader('X-Rate-Limit-Limit', options.maxUserRequestLimitPerTimeFrame[req.method])
     res.setHeader('X-Rate-Limit-Reset', resetMinute)
 
-    console.log('reqnum', reqnum)
-    console.log('X-Rate-Limit-Limit', options.maxUserRequestLimitPerTimeFrame[req.method])
-    console.log('X-Rate-Limit-Reset', resetMinute)
-    console.log('X-Rate-Limit-Remaining', remaining)
-    console.log('\n')
     processResponse({too_often: too_often, reqnum: reqnum || 0})
   })
 }
