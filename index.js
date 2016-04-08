@@ -9,7 +9,8 @@ var redis // redis!
 // options that can be overwtieen when calling this module
 var options = {
   calcRpsEachNseconds: 300,
-  maxUserRequestLimitPerMinute: {
+  TimeFrameInMinutes: 1,
+  maxUserRequestLimitPerTimeFrame: {
     POST: 50,
     GET: 300,
     PUT: 50,
@@ -29,8 +30,11 @@ function checkReqsIntensivity (req, res, next) {
   var user_id = req.user && req.user.id ? req.user.id : 0
   var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress
 
-  var minute = parseInt(Date.now() / 1000 / 60, 10)
+  var minute = parseInt(Date.now() / 1000 / (options.TimeFrameInMinutes * 60), 10)
   var requestKey = 'RateLimitter:' + (user_id || ip) + ':' + req.method + ':' + minute
+
+  // next minute
+  var resetMinute = minute * (options.TimeFrameInMinutes * 60) + (options.TimeFrameInMinutes * 60)
 
   function errHandler (err) {
     console.log('RateLimitter Error')
@@ -40,11 +44,11 @@ function checkReqsIntensivity (req, res, next) {
 
   function processResponse (info) {
     if (info.too_often) {
-      console.log('Please slow down, you post very frequently.')
+      console.log('Please slow down, you request too frequently.')
       return res.sendStatus(429)
     } else {
       // save reqnum into redis
-      redis.setex(requestKey, 1 * 60, ++info.reqnum, function (err) {
+      redis.setex(requestKey, options.TimeFrameInMinutes * 60, ++info.reqnum, function (err) {
         if (err) {
           return errHandler(err)
         }
@@ -60,9 +64,20 @@ function checkReqsIntensivity (req, res, next) {
 
     reqnum = parseInt(reqnum, 10) || 0
     var too_often = false
-    if (reqnum > options.maxUserRequestLimitPerMinute[req.method]) {
+    var remaining = options.maxUserRequestLimitPerTimeFrame[req.method] - reqnum
+    if (remaining < 0) {
       too_often = true
+      res.setHeader('X-Rate-Limit-Remaining', Math.max(remaining, 0))
     }
+
+    res.setHeader('X-Rate-Limit-Limit', options.maxUserRequestLimitPerTimeFrame[req.method])
+    res.setHeader('X-Rate-Limit-Reset', resetMinute)
+
+    console.log('reqnum', reqnum)
+    console.log('X-Rate-Limit-Limit', options.maxUserRequestLimitPerTimeFrame[req.method])
+    console.log('X-Rate-Limit-Reset', resetMinute)
+    console.log('X-Rate-Limit-Remaining', remaining)
+    console.log('\n')
     processResponse({too_often: too_often, reqnum: reqnum || 0})
   })
 }
