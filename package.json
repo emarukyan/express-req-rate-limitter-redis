@@ -1,0 +1,22 @@
+{
+  "name": "express-rate-limiter",
+  "description": "Node.js ExpressJs configurable requests rate limitter middlewear on Redis",
+  "version": "1.0.0",
+  "contributors": [
+    "Edgar Marukyan <edgar@peyotto.com> (http://peyotto.com)"
+  ],
+  "license": "MIT",
+  "repository": "emarukyan/express-rate-limiter",
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "index.js"
+  ],
+  "engines": {
+    "node": ">= 0.8"
+  }
+}
