@@ -1,5 +1,3 @@
-var env = process.env.NODE_ENV || 'development'
-
 // CALCULATE RPS!
 var begin = new Date() // for calculating requests per second
 var end = new Date()
@@ -28,11 +26,6 @@ var options = {
  * @returns next()
  */
 function checkReqsIntensivity (req, res, next) {
-  // Do not check rate limits in dev environment, this is for beeing able to run tests! :)
-  if (env === 'development') {
-    return next()
-  }
-
   var user_id = req.user && req.user.id ? req.user.id : 0
   var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress
 
@@ -65,11 +58,10 @@ function checkReqsIntensivity (req, res, next) {
       return errHandler(err)
     }
 
+    reqnum = parseInt(reqnum, 10) || 0
     var too_often = false
-    if (reqnum !== null) {
-      if (reqnum > options.maxUserRequestLimitPerMinute[req.method]) {
-        too_often = true
-      }
+    if (reqnum > options.maxUserRequestLimitPerMinute[req.method]) {
+      too_often = true
     }
     processResponse({too_often: too_often, reqnum: reqnum || 0})
   })
