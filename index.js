@@ -67,11 +67,11 @@ function checkReqsIntensivity (req, res, next) {
     var remaining = options.maxUserRequestLimitPerTimeFrame[req.method] - reqnum
     if (remaining < 0) {
       too_often = true
-      res.setHeader('X-Rate-Limit-Remaining', Math.max(remaining, 0))
+      res.setHeader('X-Rate-Limit-Reset', resetMinute)
     }
 
     res.setHeader('X-Rate-Limit-Limit', options.maxUserRequestLimitPerTimeFrame[req.method])
-    res.setHeader('X-Rate-Limit-Reset', resetMinute)
+    res.setHeader('X-Rate-Limit-Remaining', Math.max(remaining, 0))
 
     processResponse({too_often: too_often, reqnum: reqnum || 0})
   })
